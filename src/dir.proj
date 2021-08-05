@@ -66,6 +66,7 @@
             <LayoutRootFilesToDelete Include="$(MSBuildProjectDirectory)/../_layout/bin/RunnerService.js" Condition="'$(PackageRuntime)' == 'win-x64' Or '$(PackageRuntime)' == 'win-x86' Or '$(PackageRuntime)' == 'win-arm64'"/>
         </ItemGroup>
 
+        <Delete Files="@(LayoutRootFilesToDelete)" />
     </Target>
 
     <Target Name="Clean">
