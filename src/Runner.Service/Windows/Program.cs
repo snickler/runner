@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.ServiceProcess;
 using System.Diagnostics;
 using System.ComponentModel;
 
+[assembly:System.Runtime.Versioning.SupportedOSPlatform("windows")]
 namespace RunnerService
 {
     static class Program

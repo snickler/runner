@@ -3,6 +3,9 @@ PACKAGERUNTIME=$1
 PRECACHE=$2
 
 NODE_URL=https://nodejs.org/dist
+if [[ "$PACKAGERUNTIME" == 'win-arm64' ]]; then
+     NODE_URL=https://unofficial-builds.nodejs.org/download/release
+fi
 NODE12_VERSION="12.13.1"
 
 get_abs_path() {
@@ -123,7 +126,7 @@ function acquireExternalTool() {
 }
 
 # Download the external tools only for Windows.
-if [[ "$PACKAGERUNTIME" == "win-x64" || "$PACKAGERUNTIME" == "win-x86" ]]; then
+if [[ "$PACKAGERUNTIME" == "win-x64" || "$PACKAGERUNTIME" == "win-x86" || "$PACKAGERUNTIME" == "win-arm64" ]]; then
     acquireExternalTool "$NODE_URL/v${NODE12_VERSION}/$PACKAGERUNTIME/node.exe" node12/bin
     acquireExternalTool "$NODE_URL/v${NODE12_VERSION}/$PACKAGERUNTIME/node.lib" node12/bin
     if [[ "$PRECACHE" != "" ]]; then

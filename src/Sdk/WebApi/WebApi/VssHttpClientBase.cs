@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="VssHttpClientBase.cs" company="Microsoft Corporation">
 // Copyright (C) 2009-2014 All Rights Reserved
 // </copyright>
@@ -833,7 +833,7 @@ namespace GitHub.Services.WebApi
             {
                 if (userState != null)
                 {
-                    message.Properties[UserStatePropertyName] = userState;
+                    message.Options.Set(new HttpRequestOptionsKey<object>(UserStatePropertyName),userState);
                 }
                 
                 if (!message.Headers.Contains(Common.Internal.HttpHeaders.VssE2EID))
@@ -842,11 +842,11 @@ namespace GitHub.Services.WebApi
                 }
                 VssHttpEventSource.Log.HttpRequestStart(traceActivity, message);
                 message.Trace();
-                message.Properties[VssTraceActivity.PropertyName] = traceActivity;
+                message.Options.Set(new HttpRequestOptionsKey<VssTraceActivity>(VssTraceActivity.PropertyName), traceActivity);
 
                 // Send the completion option to the inner handler stack so we know when it's safe to buffer
                 // and when we should avoid buffering.
-                message.Properties[VssHttpRequestSettings.HttpCompletionOptionPropertyName] = completionOption;
+                message.Options.Set(new HttpRequestOptionsKey<HttpCompletionOption>(VssHttpRequestSettings.HttpCompletionOptionPropertyName), completionOption);
 
                 //ConfigureAwait(false) enables the continuation to be run outside
                 //any captured SyncronizationContext (such as ASP.NET's) which keeps things

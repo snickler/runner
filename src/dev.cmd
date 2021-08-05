@@ -11,6 +11,16 @@ IF EXIST C:\Program Files\Git\bin (
   SET PATH=C:\Program Files\Git\bin;%PATH%
 )
 
+IF EXIST C:\Program Files (x86)\Git\usr\bin (
+  SET PATH=C:\Program Files (x86)\Git\usr\bin;%PATH%
+)
+IF EXIST C:\Program Files (x86)\Git\mingw64\bin (
+  SET PATH=C:\Program Files (x86)\Git\mingw64\bin;%PATH%
+)
+IF EXIST C:\Program Files (x86)\Git\bin (
+  SET PATH=C:\Program Files (x86)\Git\bin;%PATH%
+)
+
  rem Check if SH_PATH is defined.
 if defined SH_PATH (
   goto run

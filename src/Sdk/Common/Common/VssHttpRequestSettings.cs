@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -291,12 +291,12 @@ namespace GitHub.Services.Common
         protected internal virtual Boolean ApplyTo(HttpRequestMessage request)
         {
             // Make sure we only apply the settings to the request once
-            if (request.Properties.ContainsKey(PropertyName))
+            if (request.Options.TryGetValue(PropertyName, out VssHttpRequestSettings settings))
             {
                 return false;
             }
 
-            request.Properties.Add(PropertyName, this);
+            request.Options.Set(new HttpRequestOptionsKey<VssHttpRequestSettings>(PropertyName), this);
 
             if (this.AcceptLanguages != null && this.AcceptLanguages.Count > 0)
             {

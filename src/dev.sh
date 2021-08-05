@@ -17,7 +17,7 @@ LAYOUT_DIR="$SCRIPT_DIR/../_layout"
 DOWNLOAD_DIR="$SCRIPT_DIR/../_downloads/netcore2x"
 PACKAGE_DIR="$SCRIPT_DIR/../_package"
 DOTNETSDK_ROOT="$SCRIPT_DIR/../_dotnetsdk"
-DOTNETSDK_VERSION="3.1.302"
+DOTNETSDK_VERSION="5.0.302"
 DOTNETSDK_INSTALLDIR="$DOTNETSDK_ROOT/$DOTNETSDK_VERSION"
 RUNNER_VERSION=$(cat runnerversion)
 
@@ -35,6 +35,9 @@ fi
 
 if [[ "$CURRENT_PLATFORM" == 'windows' ]]; then
     RUNTIME_ID='win-x64'
+    if [[ "$PROCESSOR_IDENTIFIER" == 'ARMv8'* ]]; then
+        RUNTIME_ID='win-arm64'
+    fi
     if [[ "$PROCESSOR_ARCHITECTURE" == 'x86' ]]; then
         RUNTIME_ID='win-x86'
     fi
@@ -60,7 +63,7 @@ fi
 # Linux can publish linux-x64/arm/arm64
 # OSX can publish osx-x64
 if [[ "$CURRENT_PLATFORM" == 'windows' ]]; then
-    if [[ ("$RUNTIME_ID" != 'win-x86') && ("$RUNTIME_ID" != 'win-x64') ]]; then
+    if [[ ("$RUNTIME_ID" != 'win-x86') && ("$RUNTIME_ID" != 'win-x64') && ("$RUNTIME_ID" != 'win-arm64')  ]]; then
         echo "Failed: Can't build $RUNTIME_ID package $CURRENT_PLATFORM" >&2
         exit 1
     fi
@@ -202,7 +205,7 @@ if [[ (! -d "${DOTNETSDK_INSTALLDIR}") || (! -e "${DOTNETSDK_INSTALLDIR}/.${DOTN
 fi
 
 echo "Prepend ${DOTNETSDK_INSTALLDIR} to %PATH%"
-export PATH=${DOTNETSDK_INSTALLDIR}:$PATH
+#export PATH=${DOTNETSDK_INSTALLDIR}:$PATH
 
 heading "Dotnet SDK Version"
 dotnet --version
