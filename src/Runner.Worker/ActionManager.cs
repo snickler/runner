@@ -267,6 +267,19 @@ namespace GitHub.Runner.Worker
                             _cachedEmbeddedPostSteps[parentStepId].Push(clonedAction);
                         }
                     }
+                    else if (depth > 0)
+                    {
+                        // if we're in a composite action and haven't loaded the local action yet
+                        // we assume it has a post step
+                        if (!_cachedEmbeddedPostSteps.ContainsKey(parentStepId))
+                        {
+                            // If we haven't done so already, add the parent to the post steps
+                            _cachedEmbeddedPostSteps[parentStepId] = new Stack<Pipelines.ActionStep>();
+                        }
+                        // Clone action so we can modify the condition without affecting the original
+                        var clonedAction = action.Clone() as Pipelines.ActionStep;
+                        _cachedEmbeddedPostSteps[parentStepId].Push(clonedAction);                        
+                    }
                 }
             }
 
@@ -610,6 +623,7 @@ namespace GitHub.Runner.Worker
                     {
                         NameWithOwner = repositoryReference.Name,
                         Ref = repositoryReference.Ref,
+                        Path = repositoryReference.Path,
                     };
                 })
                 .ToList();
@@ -632,7 +646,12 @@ namespace GitHub.Runner.Worker
                 }
                 catch (Exception ex) when (!executionContext.CancellationToken.IsCancellationRequested) // Do not retry if the run is canceled.
                 {
-                    if (attempt < 3)
+                    // UnresolvableActionDownloadInfoException is a 422 client error, don't retry
+                    // Some possible cases are:
+                    // * Repo is rate limited
+                    // * Repo or tag doesn't exist, or isn't public
+                    // * Policy validation failed
+                    if (attempt < 3 && !(ex is WebApi.UnresolvableActionDownloadInfoException))
                     {
                         executionContext.Output($"Failed to resolve action download info. Error: {ex.Message}");
                         executionContext.Debug(ex.ToString());
@@ -648,6 +667,7 @@ namespace GitHub.Runner.Worker
                         // Some possible cases are:
                         // * Repo is rate limited
                         // * Repo or tag doesn't exist, or isn't public
+                        // * Policy validation failed
                         if (ex is WebApi.UnresolvableActionDownloadInfoException)
                         {
                             throw;
@@ -1027,7 +1047,6 @@ namespace GitHub.Runner.Worker
                         }
                     }
 
-                    // TODO: remove once we remove the DistributedTask.EnableCompositeActions FF
                     foreach (var step in compositeAction.Steps)
                     {
                         if (string.IsNullOrEmpty(executionContext.Global.Variables.Get("DistributedTask.EnableCompositeActions")) && step.Reference.Type != Pipelines.ActionSourceType.Script)

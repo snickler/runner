@@ -1,14 +1,19 @@
 ## Features
 
+- Expose GITHUB_REF_* as environment variable (#1314)
+- Add arch to runner context (#1372)
+- Support Conditional Steps in Composite Actions (#1438)
+- Log current runner version in terminal (#1441)
+
 ## Bugs
 
-- Fixed a bug where composite actions did not respect `continue-on-error` (#1238)
-- Fixed a bug where composite actions post steps did not have the correct step context (#1243)
-
+- Makes the user keychains available to the service (#847)
+- Use Actions Service health and api.github.com endpoints after connection failure on Actions Server and Hosted (#1385)
+- Fix an issue where nested local composite actions did not correctly register post steps (#1433)
 
 ## Misc
 
-- Correctly finish Job when worker crashes with IO Exceptions (#1239)
+- Cleanup Older versions on MacOS now that we recreate node versions as needed (#1410)
 
 ## Windows x64
 We recommend configuring the runner in a root folder of the Windows drive (e.g. "C:\actions-runner"). This will help avoid issues related to service identity folder permissions and long file path restrictions on Windows.
@@ -20,7 +25,7 @@ mkdir \actions-runner ; cd \actions-runner
 # Download the latest runner package
 Invoke-WebRequest -Uri https://github.com/actions/runner/releases/download/v<RUNNER_VERSION>/actions-runner-win-x64-<RUNNER_VERSION>.zip -OutFile actions-runner-win-x64-<RUNNER_VERSION>.zip
 # Extract the installer
-Add-Type -AssemblyName System.IO.Compression.FileSystem ; 
+Add-Type -AssemblyName System.IO.Compression.FileSystem ;
 [System.IO.Compression.ZipFile]::ExtractToDirectory("$PWD\actions-runner-win-x64-<RUNNER_VERSION>.zip", "$PWD")
 ```
 

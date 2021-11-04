@@ -50,8 +50,9 @@ namespace GitHub.Runner.Worker.Handlers
                 // Only register post steps for steps that actually ran
                 foreach (var step in Data.PostSteps.ToList())
                 {
-                    if (ExecutionContext.Root.EmbeddedStepsWithPostRegistered.Contains(step.Id))
+                    if (ExecutionContext.Root.EmbeddedStepsWithPostRegistered.ContainsKey(step.Id))
                     {
+                        step.Condition = ExecutionContext.Root.EmbeddedStepsWithPostRegistered[step.Id];
                         steps.Add(step);
                     }
                     else
@@ -124,7 +125,7 @@ namespace GitHub.Runner.Worker.Handlers
                     {
                         ArgUtil.NotNull(step, step.DisplayName);
                         var stepId = $"__{Guid.NewGuid()}";
-                        step.ExecutionContext = ExecutionContext.CreateEmbeddedChild(childScopeName, stepId, Guid.NewGuid());
+                        step.ExecutionContext = ExecutionContext.CreateEmbeddedChild(childScopeName, stepId, Guid.NewGuid(), stage);
                         embeddedSteps.Add(step);
                     }
                 }
@@ -143,7 +144,7 @@ namespace GitHub.Runner.Worker.Handlers
                     step.Stage = stage;
                     step.Condition = stepData.Condition;
                     ExecutionContext.Root.EmbeddedIntraActionState.TryGetValue(step.Action.Id, out var intraActionState);
-                    step.ExecutionContext = ExecutionContext.CreateEmbeddedChild(childScopeName, stepData.ContextName, step.Action.Id, intraActionState: intraActionState, siblingScopeName: siblingScopeName);
+                    step.ExecutionContext = ExecutionContext.CreateEmbeddedChild(childScopeName, stepData.ContextName, step.Action.Id, stage, intraActionState: intraActionState, siblingScopeName: siblingScopeName);
                     step.ExecutionContext.ExpressionValues["inputs"] = inputsData;
                     if (!String.IsNullOrEmpty(ExecutionContext.SiblingScopeName))
                     {
@@ -241,6 +242,10 @@ namespace GitHub.Runner.Worker.Handlers
                 step.ExecutionContext.ExpressionFunctions.Add(new FunctionInfo<FailureFunction>(PipelineTemplateConstants.Failure, 0, 0));
                 step.ExecutionContext.ExpressionFunctions.Add(new FunctionInfo<SuccessFunction>(PipelineTemplateConstants.Success, 0, 0));
 
+                // Set action_status to the success of the current composite action
+                var actionResult = ExecutionContext.Result?.ToActionResult() ?? ActionResult.Success;
+                step.ExecutionContext.SetGitHubContext("action_status", actionResult.ToString());
+
                 // Initialize env context
                 Trace.Info("Initialize Env context for embedded step");
 #if OS_WINDOWS
@@ -304,7 +309,7 @@ namespace GitHub.Runner.Worker.Handlers
                             // Mark job as cancelled
                             ExecutionContext.Root.Result = TaskResult.Canceled;
                             ExecutionContext.Root.JobContext.Status = ExecutionContext.Root.Result?.ToActionResult();
-
+                            
                             step.ExecutionContext.Debug($"Re-evaluate condition on job cancellation for step: '{step.DisplayName}'.");
                             var conditionReTestTraceWriter = new ConditionTraceWriter(Trace, null); // host tracing only
                             var conditionReTestResult = false;
@@ -388,6 +393,7 @@ namespace GitHub.Runner.Worker.Handlers
                     {
                         await RunStepAsync(step);
                     }
+                
                 }
                 finally
                 {
@@ -403,12 +409,6 @@ namespace GitHub.Runner.Worker.Handlers
                 {
                     Trace.Info($"Update job result with current composite step result '{step.ExecutionContext.Result}'.");
                     ExecutionContext.Result = TaskResultUtil.MergeTaskResults(ExecutionContext.Result, step.ExecutionContext.Result.Value);
-
-                    // We should run cleanup even if one of the cleanup step fails
-                    if (stage != ActionRunStage.Post)
-                    {
-                        break;
-                    }
                 }
             }
         }
