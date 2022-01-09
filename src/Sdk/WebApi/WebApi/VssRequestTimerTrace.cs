@@ -39,7 +39,7 @@ namespace GitHub.Services.WebApi
             VssRequestTimerTrace tracer = null;
             if (response.RequestMessage.Options.TryGetValue(tracerKey, out object tracerObj))
             {
-                tracer = tracerObj;
+                tracer = tracerObj as VssRequestTimerTrace;
                 Debug.Assert(tracer != null, "Tracer object is the wrong type!");
             }
 
