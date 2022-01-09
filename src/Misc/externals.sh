@@ -3,11 +3,12 @@ PACKAGERUNTIME=$1
 PRECACHE=$2
 
 NODE_URL=https://nodejs.org/dist
-if [[ "$PACKAGERUNTIME" == 'win-arm64' ]]; then
-     NODE_URL=https://unofficial-builds.nodejs.org/download/release
-fi
 NODE12_VERSION="12.13.1"
 NODE16_VERSION="16.13.0"
+if [[ "$PACKAGERUNTIME" == 'win-arm64' ]]; then
+     NODE_URL=https://unofficial-builds.nodejs.org/download/release
+     NODE16_VERSION="16.6.2"
+fi
 
 get_abs_path() {
   # exploits the fact that pwd will print abs path when no args
