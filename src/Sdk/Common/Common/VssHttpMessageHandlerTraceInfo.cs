@@ -76,8 +76,8 @@ namespace GitHub.Services.Common
         /// <param name="traceInfo"></param>
         public static void SetTraceInfo(HttpRequestMessage message, VssHttpMessageHandlerTraceInfo traceInfo)
         {
-            VssHttpMessageHandlerTraceInfo existingTraceInfo;
-            if (!message.Options.TryGetValue(new HttpRequestOptionsKey<VssHttpMessageHandlerTraceInfo>(TfsTraceInfoKey), out existingTraceInfo))
+            object existingTraceInfo;
+            if (!message.Options.TryGetValue(TfsTraceInfoKey, out existingTraceInfo))
             {
                 message.Options.Set(new HttpRequestOptionsKey<VssHttpMessageHandlerTraceInfo>(TfsTraceInfoKey), traceInfo);
             }
@@ -92,7 +92,7 @@ namespace GitHub.Services.Common
         {
             VssHttpMessageHandlerTraceInfo traceInfo = null;
 
-            if (message.Options.TryGetValue(new HttpRequestOptionsKey<VssHttpMessageHandlerTraceInfo>(TfsTraceInfoKey), out VssHttpMessageHandlerTraceInfo traceInfoObject))
+            if (message.Options.TryGetValue(TfsTraceInfoKey, out object traceInfoObject))
             {
                 traceInfo = traceInfoObject;
             }
