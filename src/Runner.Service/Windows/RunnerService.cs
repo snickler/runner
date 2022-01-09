@@ -9,6 +9,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 
+[assembly:System.Runtime.Versioning.SupportedOSPlatform("windows")]
 namespace RunnerService
 {
     public partial class RunnerService : ServiceBase
