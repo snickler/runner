@@ -94,7 +94,7 @@ namespace GitHub.Services.Common
 
             if (message.Options.TryGetValue(TfsTraceInfoKey, out object traceInfoObject))
             {
-                traceInfo = traceInfoObject;
+                traceInfo = traceInfoObject as VssHttpMessageHandlerTraceInfo;
             }
 
             return traceInfo;
