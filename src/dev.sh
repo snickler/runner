@@ -314,7 +314,7 @@ if [[ (! -d "${DOTNETSDK_INSTALLDIR}") || (! -e "${DOTNETSDK_INSTALLDIR}/.${DOTN
 fi
 
 echo "Prepend ${DOTNETSDK_INSTALLDIR} to %PATH%"
-#export PATH=${DOTNETSDK_INSTALLDIR}:$PATH
+export PATH=${DOTNETSDK_INSTALLDIR}:$PATH
 
 heading "Dotnet SDK Version"
 dotnet --version
